@@ -34,6 +34,7 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, dataset_siz
         print('-' * 10)
 
         for phase in ['train', 'val']:
+            print("Phase: ", phase)
             if phase == 'train':
                 model.train()
             else:
@@ -78,7 +79,7 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, dataset_siz
                 val_loss.append(epoch_loss)
                 val_acc.append(epoch_acc.item())
 
-            print(f'{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}')
+            print(f'{phase} loss: {epoch_loss:.4f}; acc: {epoch_acc:.4f}')
 
             # deep copy the model
             if phase == 'val' and epoch_acc > best_acc:
