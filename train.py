@@ -97,7 +97,7 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, dataset_siz
     return model, [tr_loss, tr_acc, val_loss, val_acc]
 
 
-def evaluate_model(model, data_loader, labels):
+def evaluate_model(model, data_loader, class_names):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     correct = 0
@@ -115,8 +115,8 @@ def evaluate_model(model, data_loader, labels):
 
     test_accuracy = 100 * correct / total
 
-    correct_pred = {classname: 0 for classname in labels}
-    total_pred = {classname: 0 for classname in labels}
+    correct_pred = {classname: 0 for classname in class_names}
+    total_pred = {classname: 0 for classname in class_names}
     
     all_predictions = []
     all_labels = []
@@ -131,8 +131,8 @@ def evaluate_model(model, data_loader, labels):
             # Collect the correct predictions for each class
             for label, prediction in zip(labels, predictions):
                 if label == prediction:
-                    correct_pred[labels[label]] += 1
-                total_pred[labels[label]] += 1
+                    correct_pred[class_names[label]] += 1
+                total_pred[class_names[label]] += 1
 
     flat_preds = [item.cpu() for sub_list in all_predictions for item in sub_list]
     flat_labels = [item.cpu() for sub_list in all_labels for item in sub_list]
