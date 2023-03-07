@@ -99,41 +99,34 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, dataset_siz
 
 def evaluate_model(model, data_loader, class_names):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    model = model.to(device)
     
     correct = 0
     total = 0
+    all_predictions = []
+    all_labels = []
+    correct_pred = {classname: 0 for classname in class_names}
+    total_pred = {classname: 0 for classname in class_names}
     # Since we're not training, we don't need to calculate the gradients for our outputs
     with torch.no_grad():
         for data in data_loader:
             images, labels = data[0].to(device), data[1].to(device)
+            all_labels.append(labels)
             # Calculate outputs by running images through the network
             outputs = model(images).to(device)
             # The class with the highest energy is what we choose as prediction
             _, predicted = torch.max(outputs.data, 1)
+            all_predictions.append(predicted)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
-
-    test_accuracy = 100 * correct / total
-
-    correct_pred = {classname: 0 for classname in class_names}
-    total_pred = {classname: 0 for classname in class_names}
-    
-    all_predictions = []
-    all_labels = []
-    with torch.no_grad():
-        for data in data_loader:
-            images, labels = data[0].to(device), data[1].to(device)
-            all_labels.append(labels)
-            outputs = model(images).to(device)
-            _, predictions = torch.max(outputs, 1)
-            all_predictions.append(predictions)
-
             # Collect the correct predictions for each class
-            for label, prediction in zip(labels, predictions):
+            for label, prediction in zip(labels, predicted):
                 if label == prediction:
                     correct_pred[class_names[label]] += 1
                 total_pred[class_names[label]] += 1
 
+    test_accuracy = 100 * correct / total
     flat_preds = [item.cpu() for sub_list in all_predictions for item in sub_list]
     flat_labels = [item.cpu() for sub_list in all_labels for item in sub_list]
 

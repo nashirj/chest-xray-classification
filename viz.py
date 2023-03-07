@@ -48,7 +48,7 @@ def plot_confusion_matrix(cm, title, labels):
     '''Plot confusion matrix'''
     df_cm = pd.DataFrame(cm, index = labels, columns = labels)
     plt.figure(figsize = (10,7))
-    sns.heatmap(df_cm, xticklabels=True, yticklabels=True, annot=True)
+    sns.heatmap(df_cm, xticklabels=True, yticklabels=True, annot=True, fmt='g', cmap='Blues')
     plt.title(title + " Confusion Matrix")
     plt.ylabel("True label")
     plt.xlabel("Predicted label")
