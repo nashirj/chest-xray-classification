@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
 import torch
 import torch.nn.functional as F
 import torch.nn as nn
@@ -97,7 +97,14 @@ def train_model(model, criterion, optimizer, scheduler, dataloaders, dataset_siz
     return model, [tr_loss, tr_acc, val_loss, val_acc]
 
 
-def evaluate_model(model, data_loader, class_names):
+def compute_metrics_on_test_set(y_true, y_pred):
+    confusion = confusion_matrix(y_true, y_pred)
+    precision, recall, fscore, support = precision_recall_fscore_support(y_true, y_pred, average='macro')
+
+    return confusion, precision, recall, fscore, support
+
+
+def evaluate_model_on_test_set(model, data_loader, class_names):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     model = model.to(device)
@@ -126,18 +133,17 @@ def evaluate_model(model, data_loader, class_names):
                     correct_pred[class_names[label]] += 1
                 total_pred[class_names[label]] += 1
 
-    test_accuracy = 100 * correct / total
     flat_preds = [item.cpu() for sub_list in all_predictions for item in sub_list]
     flat_labels = [item.cpu() for sub_list in all_labels for item in sub_list]
 
-    confusion = confusion_matrix(flat_labels, flat_preds)
+    test_accuracy = 100 * correct / total
 
     per_class_acc = {}
     # print accuracy for each class
     for classname, correct_count in correct_pred.items():
         per_class_acc[classname] = 100 * float(correct_count) / total_pred[classname]
 
-    return test_accuracy, per_class_acc, confusion\
+    return flat_labels, flat_preds, test_accuracy, per_class_acc
 
 
 def save_training_metrics(filename, tr_loss, tr_acc, te_loss, te_acc):
@@ -147,4 +153,3 @@ def save_training_metrics(filename, tr_loss, tr_acc, te_loss, te_acc):
 def load_training_metrics_from_npz(filename):
     npzfile = np.load(filename)
     return npzfile['arr_0'], npzfile['arr_1'], npzfile['arr_2'], npzfile['arr_3']
-
