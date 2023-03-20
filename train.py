@@ -150,6 +150,6 @@ def save_training_metrics(filename, tr_loss, tr_acc, te_loss, te_acc):
     np.savez(f"{filename}.npz", tr_loss, tr_acc, te_loss, te_acc)
 
 
-def load_training_metrics_from_npz(filename):
+def load_training_metrics(filename):
     npzfile = np.load(filename)
     return npzfile['arr_0'], npzfile['arr_1'], npzfile['arr_2'], npzfile['arr_3']
