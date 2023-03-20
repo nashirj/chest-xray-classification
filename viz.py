@@ -44,14 +44,19 @@ def visualize_model(model, dataloaders, class_names, device, num_images=6):
         model.train(mode=was_training)
 
 
-def plot_confusion_matrix(cm, title, labels):
+def plot_confusion_matrix(cm, title, labels, save_dir="plots"):
     '''Plot confusion matrix'''
     df_cm = pd.DataFrame(cm, index = labels, columns = labels)
     plt.figure(figsize = (10,7))
     sns.heatmap(df_cm, xticklabels=True, yticklabels=True, annot=True, fmt='g', cmap='Blues')
-    plt.title(title + " Confusion Matrix")
+    plt.title(f"{title} Confusion Matrix on test data")
     plt.ylabel("True label")
     plt.xlabel("Predicted label")
+    plt.tight_layout()
+
+    title = title.lower().replace(" ", "_")
+    if save_dir:
+        plt.savefig(f"{save_dir}/{title}_cm.png")
     plt.show()
 
 
@@ -68,17 +73,29 @@ def show_test_summary_metrics(test_accuracy, per_class_acc, cm, precision, recal
     plot_confusion_matrix(cm, title, class_names)
 
 
-def plot_training_metrics(trl, tra, tel, tea, title):    
+def plot_training_metrics(trl, tra, tel, tea, title, save_dir="plots"):
     n = [i for i in range(len(trl))]
+
+    fig = plt.figure()
+    fig.suptitle(title)
+    plt.subplot(1, 2, 1)
+
     plt.plot(n, trl, label='train')
     plt.plot(n, tel, label='validation')
-    plt.title("Training and Validation Loss, " + title)
+    plt.title(f"Loss")
     plt.xlabel("Epoch")
     plt.legend()
-    plt.show()
-    plt.plot(n, tra, label='train acc')
-    plt.plot(n, tea, label='validation acc')
-    plt.title("Training and Validation Accuracy, " + title + f", best val acc: {max(tea):.3f}")
+    plt.tight_layout()
+
+    plt.subplot(1, 2, 2)
+    plt.plot(n, tra, label='train')
+    plt.plot(n, tea, label='validation')
+    plt.title(f"Accuracy; best: {max(tea):.3f}")
     plt.xlabel("Epoch")
     plt.legend()
+    plt.tight_layout()
+
+    title = title.lower().replace(" ", "_")
+    if save_dir:
+        plt.savefig(f"{save_dir}/{title}_train_metrics.png")
     plt.show()
