@@ -107,15 +107,33 @@ def load_xray_data(data_transforms=None):
     all_train_data = torch.utils.data.ConcatDataset([initial_train_set, initial_val_set])
     train_size = int(0.8 * len(all_train_data))
     val_size = len(all_train_data) - train_size
-    train_data, val_data = torch.utils.data.random_split(all_train_data, [train_size, val_size])
+    train_set, val_set = torch.utils.data.random_split(all_train_data, [train_size, val_size])
 
-    image_datasets = {'train': train_data, 'val': val_data, 'test': test_set}
+    image_datasets = {'train': train_set, 'val': val_set, 'test': test_set}
     dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
                                                 shuffle=True, num_workers=4)
                 for x in ['train', 'val', 'test']}
     dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val', 'test']}
 
     return dataloaders, dataset_sizes, class_names
+
+def get_labels(dataloader):
+    labels = []
+    for _, label in dataloader:
+        labels.append(label)
+    # Flatten list of lists
+    labels = [item for sublist in labels for item in sublist]
+    return labels
+
+def compute_class_weights(labels):
+    # Count number of samples of each class
+    num_normal = labels.count(0)
+    num_pneumonia = labels.count(1)
+
+    weight_for_0 = num_pneumonia / (num_normal + num_pneumonia)
+    weight_for_1 = num_normal / (num_normal + num_pneumonia)
+    class_weights = [weight_for_0, weight_for_1]
+    return torch.FloatTensor(class_weights)
 
 
 if __name__ == '__main__':
