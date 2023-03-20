@@ -55,12 +55,15 @@ def plot_confusion_matrix(cm, title, labels):
     plt.show()
 
 
-def show_test_summary_metrics(test_accuracy, per_class_acc, cm, title, class_names):
+def show_test_summary_metrics(test_accuracy, per_class_acc, cm, precision, recall, fscore, title, class_names):
     sorted_by_acc = dict(sorted(per_class_acc.items(), key=lambda item: item[1]))
     for classname, accuracy in sorted_by_acc.items():
         print(f'Accuracy for class: {classname} is {accuracy:.1f} %')
 
-    print(f"\n Overall accuracy ({title}): {test_accuracy:.1f}")
+    print(f"Overall accuracy ({title}): {test_accuracy:.1f}")
+    print(f"Precision: {precision:.3f}")
+    print(f"Recall: {recall:.3f}")
+    print(f"F1 score: {fscore:.3f}")
 
     plot_confusion_matrix(cm, title, class_names)
 
