@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import torch
+from torchvision import transforms
 
 def imshow(inp, mean, std, title=None):
     """Imshow for Tensor."""
@@ -14,7 +15,25 @@ def imshow(inp, mean, std, title=None):
     plt.imshow(inp)
     if title is not None:
         plt.title(title)
-    plt.pause(0.001)  # pause a bit so that plots are updated
+    # plt.pause(0.001)  # pause a bit so that plots are updated
+
+
+def show_misclassified_images(misclassified_images, class_names, mean, std, title, save_dir="plots"):
+    plt.subplot(2, 2, 1)
+    i = 1
+    plt.suptitle(title)
+    for im, label, pred in misclassified_images:
+        plt.subplot(2, 2, i)
+        im = transforms.Resize((224, 224))(im)
+        plt.subplot(2, 2, i)
+        plt.title(f"Pred: {class_names[pred][0]}, Label: {class_names[label][0]}")
+        imshow(im.cpu(), mean, std)
+        plt.axis('off')
+        i += 1
+    if save_dir:
+        title = title.lower().replace(" ", "_")
+        plt.savefig(f"{save_dir}/{title}.png")
+    plt.show()
 
 
 def visualize_model(model, dataloaders, class_names, device, num_images=6):
